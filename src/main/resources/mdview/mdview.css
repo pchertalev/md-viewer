@@ -1,0 +1,451 @@
+/*
+  Оформление страницы просмотра.
+
+  Тема: JS приводит data-theme="auto" к light или dark (см. mdview.css → resolveTheme),
+  поэтому здесь только два набора переменных, без дублирования под media-запрос.
+
+  Размеры — в rem: базовый размер шрифта задаётся одним множителем --font-scale,
+  и кнопки «крупнее/мельче» меняют только его.
+*/
+
+:root {
+    --bg: #ffffff;
+    --fg: #1f2328;
+    --muted: #6b7280;
+    --border: #d8dee4;
+    --border-soft: #eaeef2;
+    --code-bg: #f6f8fa;
+    --code-fg: #1f2328;
+    --link: #0969da;
+    --quote-bar: #d0d7de;
+    --quote-fg: #57606a;
+    --sidebar-bg: #fbfcfd;
+    --sidebar-active: #ddf4ff;
+    --mark: #fff8c5;
+    --shadow: 0 1px 3px rgba(31, 35, 40, .08);
+}
+
+html[data-theme="dark"] {
+    --bg: #0d1117;
+    --fg: #e6edf3;
+    --muted: #8d96a0;
+    --border: #30363d;
+    --border-soft: #21262d;
+    --code-bg: #161b22;
+    --code-fg: #e6edf3;
+    --link: #4493f8;
+    --quote-bar: #3d444d;
+    --quote-fg: #9198a1;
+    --sidebar-bg: #0b0f14;
+    --sidebar-active: #17324a;
+    --mark: #4d4318;
+    --shadow: 0 1px 3px rgba(1, 4, 9, .5);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: calc(16px * var(--font-scale, 1));
+    /* масштаб из адресной строки браузера не нужен, но колесо с ctrl не ломает вёрстку */
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- раскладка ---------- */
+
+.md-layout {
+    display: grid;
+    grid-template-columns: 17rem minmax(0, 1fr);
+    align-items: start;
+    min-height: 100vh;
+}
+
+.md-layout.md-no-toc {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.md-main {
+    min-width: 0;
+    padding: 1.5rem 2.5rem 3rem;
+}
+
+.md-content {
+    max-width: var(--max-width, 84ch);
+}
+
+/* ---------- содержание ---------- */
+
+.md-sidebar {
+    position: sticky;
+    top: 0;
+    max-height: 100vh;
+    overflow: auto;
+    padding: 1.25rem 1rem 2rem;
+    background: var(--sidebar-bg);
+    border-right: 1px solid var(--border-soft);
+}
+
+.md-no-toc .md-sidebar {
+    display: none;
+}
+
+.md-sidebar-title {
+    font-size: .75rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--muted);
+    margin-bottom: .6rem;
+}
+
+.md-toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.md-toc-sub {
+    padding-left: .75rem;
+    border-left: 1px solid var(--border-soft);
+}
+
+.md-toc-item {
+    margin: .1rem 0;
+    font-size: .875rem;
+    line-height: 1.4;
+}
+
+.md-toc-level-1 a {
+    font-weight: 600;
+}
+
+.md-toc-item a {
+    display: block;
+    padding: .15rem .4rem;
+    border-radius: .25rem;
+    color: inherit;
+    text-decoration: none;
+}
+
+.md-toc-item a:hover {
+    background: var(--border-soft);
+}
+
+.md-toc-item.is-active > a {
+    background: var(--sidebar-active);
+}
+
+.md-toc-empty {
+    color: var(--muted);
+    font-size: .875rem;
+}
+
+/* ---------- шапка и панель ---------- */
+
+.md-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    max-width: var(--max-width, 84ch);
+    margin-bottom: 1.5rem;
+}
+
+.md-doc-title {
+    margin: 0;
+    font-size: 1.5rem;
+    line-height: 1.3;
+}
+
+.md-doc-path {
+    margin-top: .2rem;
+    font-size: .75rem;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 46rem;
+}
+
+.md-toolbar {
+    display: flex;
+    gap: .25rem;
+    flex-shrink: 0;
+}
+
+.md-btn {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--fg);
+    border-radius: .375rem;
+    min-width: 2rem;
+    height: 2rem;
+    padding: 0 .5rem;
+    font-size: .9rem;
+    cursor: pointer;
+}
+
+.md-btn:hover {
+    background: var(--code-bg);
+}
+
+.md-btn.is-on {
+    background: var(--sidebar-active);
+    border-color: var(--link);
+}
+
+/* ---------- сам текст ---------- */
+
+.md-content > :first-child {
+    margin-top: 0;
+}
+
+.md-content h1, .md-content h2, .md-content h3,
+.md-content h4, .md-content h5, .md-content h6 {
+    margin: 1.8rem 0 .8rem;
+    line-height: 1.3;
+    font-weight: 600;
+    scroll-margin-top: .5rem;
+}
+
+.md-content h1 { font-size: 1.9rem; }
+.md-content h2 { font-size: 1.5rem; padding-bottom: .3rem; border-bottom: 1px solid var(--border-soft); }
+.md-content h3 { font-size: 1.25rem; }
+.md-content h4 { font-size: 1.05rem; }
+.md-content h5 { font-size: .95rem; }
+.md-content h6 { font-size: .875rem; color: var(--muted); }
+
+.md-heading-anchor {
+    margin-left: .35rem;
+    color: var(--muted);
+    text-decoration: none;
+    opacity: 0;
+}
+
+.md-content h1:hover .md-heading-anchor,
+.md-content h2:hover .md-heading-anchor,
+.md-content h3:hover .md-heading-anchor,
+.md-content h4:hover .md-heading-anchor,
+.md-content h5:hover .md-heading-anchor,
+.md-content h6:hover .md-heading-anchor {
+    opacity: 1;
+}
+
+.md-content p {
+    margin: .8rem 0;
+}
+
+.md-content a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+.md-content a:hover {
+    text-decoration: underline;
+}
+
+.md-external::after {
+    content: " ↗";
+    font-size: .75em;
+    color: var(--muted);
+}
+
+/* битая относительная ссылка: файл не найден при разборе */
+.md-missing {
+    text-decoration: underline wavy #cf222e;
+}
+
+img.md-missing, .md-content img.md-missing {
+    border: 1px dashed #cf222e;
+    padding: .5rem;
+}
+
+.md-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.md-content blockquote {
+    margin: 1rem 0;
+    padding: .1rem 1rem;
+    border-left: .25rem solid var(--quote-bar);
+    color: var(--quote-fg);
+}
+
+.md-content hr {
+    height: 1px;
+    border: 0;
+    background: var(--border);
+    margin: 2rem 0;
+}
+
+.md-content ul, .md-content ol {
+    padding-left: 1.6rem;
+    margin: .8rem 0;
+}
+
+.md-content li > ul, .md-content li > ol {
+    margin: .2rem 0;
+}
+
+.md-content kbd {
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: .25rem;
+    padding: 0 .35rem;
+    background: var(--code-bg);
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: .85em;
+}
+
+.md-content mark {
+    background: var(--mark);
+    color: inherit;
+}
+
+/* ---------- код ---------- */
+
+.md-content code, .md-content pre {
+    font-family: ui-monospace, "Cascadia Mono", "JetBrains Mono", Consolas, monospace;
+    font-size: .875em;
+}
+
+.md-content code {
+    background: var(--code-bg);
+    padding: .15rem .35rem;
+    border-radius: .25rem;
+}
+
+.md-content pre {
+    position: relative;
+    margin: 1rem 0;
+    padding: .9rem 1rem;
+    background: var(--code-bg);
+    color: var(--code-fg);
+    border: 1px solid var(--border-soft);
+    border-radius: .5rem;
+    overflow: auto;
+    line-height: 1.5;
+}
+
+.md-content pre code {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    white-space: pre;
+}
+
+.md-code-copy {
+    position: absolute;
+    top: .4rem;
+    right: .4rem;
+    opacity: 0;
+    transition: opacity .15s;
+}
+
+.md-content pre:hover .md-code-copy {
+    opacity: 1;
+}
+
+/* ---------- таблицы ---------- */
+
+.md-table, .md-content table {
+    border-collapse: collapse;
+    margin: 1rem 0;
+    display: block;
+    overflow: auto;
+    max-width: 100%;
+}
+
+.md-content th, .md-content td {
+    border: 1px solid var(--border);
+    padding: .4rem .7rem;
+}
+
+.md-content th {
+    background: var(--code-bg);
+    font-weight: 600;
+}
+
+.md-content tr:nth-child(even) td {
+    background: rgba(129, 139, 152, .09);
+}
+
+/* ---------- задачи ---------- */
+
+.md-content li.task-list-item {
+    list-style: none;
+    margin-left: -1.1rem;
+}
+
+.md-content input[type="checkbox"] {
+    margin-right: .45rem;
+    vertical-align: middle;
+}
+
+/* ---------- сноски ---------- */
+
+.md-content .footnotes, .md-content .md-footnotes {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-soft);
+    font-size: .875rem;
+    color: var(--muted);
+}
+
+/* ---------- подвал ---------- */
+
+.md-footer {
+    margin-top: 3rem;
+    padding-top: .8rem;
+    border-top: 1px solid var(--border-soft);
+    color: var(--muted);
+    font-size: .75rem;
+}
+
+.md-footer-sep {
+    margin: 0 .35rem;
+}
+
+/* ---------- печать ---------- */
+
+@media print {
+    .md-sidebar, .md-toolbar, .md-code-copy {
+        display: none !important;
+    }
+
+    .md-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .md-main {
+        padding: 0;
+    }
+}
+
+@media (max-width: 60rem) {
+    .md-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .md-sidebar {
+        position: static;
+        max-height: none;
+        border-right: 0;
+        border-bottom: 1px solid var(--border-soft);
+    }
+
+    .md-main {
+        padding: 1rem 1.25rem 2rem;
+    }
+}

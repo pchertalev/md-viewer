@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="@@THEME@@" style="--max-width:@@MAX_WIDTH@@; --font-scale:@@FONT_SCALE@@">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>@@TITLE@@</title>
+    <link rel="stylesheet" href="vendor/github.min.css" id="hljs-light">
+    <link rel="stylesheet" href="vendor/github-dark.min.css" id="hljs-dark">
+    <link rel="stylesheet" href="mdview.css">
+    <script src="vendor/highlight.min.js"></script>
+    <script src="mdview.js" defer></script>
+</head>
+<body data-source="@@PATH@@">
+<div class="md-layout @@LAYOUT_CLASS@@">
+    <aside class="md-sidebar" id="sidebar">
+        <div class="md-sidebar-title">Содержание</div>
+        @@TOC@@
+    </aside>
+
+    <main class="md-main">
+        <header class="md-header">
+            <div class="md-heading">
+                <h1 class="md-doc-title">@@TITLE@@</h1>
+                <div class="md-doc-path" title="@@PATH@@">@@PATH@@</div>
+            </div>
+            <div class="md-toolbar" role="toolbar">
+                <button type="button" class="md-btn" data-action="toc" title="Содержание — T">☰</button>
+                <button type="button" class="md-btn" data-action="theme" title="Тема — D">◐</button>
+                <button type="button" class="md-btn" data-action="font-minus" title="Мельче — −">−</button>
+                <button type="button" class="md-btn" data-action="font-plus" title="Крупнее — +">+</button>
+                <button type="button" class="md-btn" data-action="reload" title="Перечитать файл — R">⟳</button>
+                <button type="button" class="md-btn" data-action="edit" title="Открыть исходник в редакторе — E">✎</button>
+                <button type="button" class="md-btn" data-action="browser" title="Открыть в браузере — B">↗</button>
+            </div>
+        </header>
+
+        <article class="md-content" id="content">@@BODY@@</article>
+
+        <footer class="md-footer">
+            <span>@@STATS@@</span>
+            <span class="md-footer-sep">·</span>
+            <span>страница собрана @@GENERATED@@</span>
+        </footer>
+    </main>
+</div>
+</body>
+</html>
