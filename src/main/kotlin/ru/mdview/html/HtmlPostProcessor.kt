@@ -32,6 +32,7 @@ class HtmlPostProcessor(
         val body = Jsoup.parseBodyFragment(bodyHtml).body()
 
         ensureHeadingIds(body)
+        normalizeHeadingAnchors(body)
         val toc = collectToc(body)
         absolutizeResources(body)
         markDocLinks(body)
@@ -60,6 +61,25 @@ class HtmlPostProcessor(
 
             val id = uniqueSlug(headingHeadingText(heading), used)
             heading.id(id)
+        }
+    }
+
+    /**
+     * Значок якоря после заголовка.
+     *
+     * Flexmark ставит значок перед текстом и даёт ему тот же id, что и заголовку.
+     * Id убираем — он в документе должен быть один, иначе переход по #раздел и поиск
+     * по getElementById берут то один элемент, то другой; значок переносим в конец,
+     * чтобы он не лез перед текстом заголовка.
+     */
+    private fun normalizeHeadingAnchors(body: Element) {
+        for (anchor in body.select("a.$ANCHOR_CLASS")) {
+            anchor.removeAttr("id")
+            if (anchor.text().isBlank()) anchor.text(ANCHOR_MARK)
+
+            anchor.parent()?.let { parent ->
+                if (parent.tagName().lowercase() in HEADING_TAGS) parent.appendChild(anchor)
+            }
         }
     }
 
@@ -180,6 +200,9 @@ class HtmlPostProcessor(
 
     private companion object {
         const val HEADING_SELECTOR = "h1, h2, h3, h4, h5, h6"
+        val HEADING_TAGS = setOf("h1", "h2", "h3", "h4", "h5", "h6")
+        const val ANCHOR_CLASS = "md-heading-anchor"
+        const val ANCHOR_MARK = "\u00b6"
         const val WORDS_PER_MINUTE = 200
         val SCHEME = Regex("^[a-zA-Z][a-zA-Z0-9+.-]*:")
         val NOT_SLUG = Regex("[^a-z0-9\u0400-\u04ff-]", RegexOption.IGNORE_CASE)

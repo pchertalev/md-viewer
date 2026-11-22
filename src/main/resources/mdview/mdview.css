@@ -236,11 +236,13 @@ body {
 .md-content h5 { font-size: .95rem; }
 .md-content h6 { font-size: .875rem; color: var(--muted); }
 
-.md-heading-anchor {
+/* значок ссылки на раздел в конце заголовка: цвет — как у текста, а не как у ссылки */
+.md-content a.md-heading-anchor {
     margin-left: .35rem;
     color: var(--muted);
     text-decoration: none;
     opacity: 0;
+    user-select: none;
 }
 
 .md-content h1:hover .md-heading-anchor,

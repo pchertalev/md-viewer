@@ -130,6 +130,19 @@ class HtmlPostProcessorTest {
     }
 
     @Test
+    fun `значок якоря после текста заголовка и без своего id`() {
+        val rendered = process(ru.mdview.core.MarkdownRenderer().renderToHtml("## Раздел\n"))
+
+        val heading = bodyOf(rendered.bodyHtml).selectFirst("h2")!!
+        val anchor = heading.selectFirst("a.md-heading-anchor")!!
+
+        assertEquals("Раздел", heading.ownText(), "текст заголовка не внутри ссылки")
+        assertEquals("¶", anchor.text())
+        assertEquals("", anchor.id(), "id у заголовка один — значок его не дублирует")
+        assertEquals(anchor, heading.lastElementChild(), "значок в конце заголовка")
+    }
+
+    @Test
     fun `счётчики документов считаются по тексту`() {
         val result = process("<h1>Раз</h1><p>два три четыре пять</p>")
 

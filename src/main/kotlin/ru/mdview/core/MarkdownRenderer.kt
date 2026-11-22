@@ -45,6 +45,12 @@ class MarkdownRenderer {
             set(HtmlRenderer.RENDER_HEADER_ID, true)
             set(TablesExtension.CLASS_NAME, "md-table")
             set(AnchorLinkExtension.ANCHORLINKS_ANCHOR_CLASS, "md-heading-anchor")
+            // Значок якоря отдельным символом после текста, а не ссылка на весь заголовок:
+            // по умолчанию flexmark оборачивает в <a> весь текст заголовка, и он красится
+            // в цвет ссылки, а наш стиль значка (полупрозрачный до наведения) прячет заголовок целиком.
+            set(AnchorLinkExtension.ANCHORLINKS_WRAP_TEXT, false)
+            // id у заголовка уже есть; второй тот же id на значке ломает переход по #раздел
+            set(AnchorLinkExtension.ANCHORLINKS_SET_ID, false)
         }
 
         parser = Parser.builder(options).build()
