@@ -44,12 +44,13 @@ class PageWriter(
         return target
     }
 
+    /**
+     * Ресурсы переписываем при каждой генерации страницы: они живут в кэше между запусками,
+     * и без этого после обновления приложения браузер продолжал бы брать старые css и js.
+     */
     private fun syncAssets() {
         for (fileName in PageAssets.FILES) {
-            val target = cacheDir.resolve(fileName)
-            if (!Files.exists(target)) {
-                Resources.copyTo(PageAssets.resourcePath(fileName), target)
-            }
+            Resources.copyTo(PageAssets.resourcePath(fileName), cacheDir.resolve(fileName))
         }
     }
 

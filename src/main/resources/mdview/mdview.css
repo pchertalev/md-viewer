@@ -16,29 +16,40 @@
     --border-soft: #eaeef2;
     --code-bg: #f6f8fa;
     --code-fg: #1f2328;
+    --code-inline-bg: #f0f3f7;
+    --code-inline-fg: #24292f;
     --link: #0969da;
     --quote-bar: #d0d7de;
     --quote-fg: #57606a;
     --sidebar-bg: #fbfcfd;
     --sidebar-active: #ddf4ff;
     --mark: #fff8c5;
+    --table-stripe: rgba(129, 139, 152, .09);
     --shadow: 0 1px 3px rgba(31, 35, 40, .08);
 }
 
+/*
+  Тёмная тема: фон умышленнее темнее кодовых блоков, чтобы блок кода или таблицы
+  читался как отдельная панель, а не сливался со страницей. Строки таблицы
+  подсвечены почти незаметно — они нужны, чтобы широкая таблица не «складывалась».
+*/
 html[data-theme="dark"] {
-    --bg: #0d1117;
+    --bg: #0a0d12;
     --fg: #e6edf3;
     --muted: #8d96a0;
-    --border: #30363d;
-    --border-soft: #21262d;
-    --code-bg: #161b22;
-    --code-fg: #e6edf3;
-    --link: #4493f8;
-    --quote-bar: #3d444d;
-    --quote-fg: #9198a1;
-    --sidebar-bg: #0b0f14;
-    --sidebar-active: #17324a;
+    --border: #232a33;
+    --border-soft: #1a2029;
+    --code-bg: #12181f;
+    --code-fg: #dfe7ef;
+    --code-inline-bg: #172130;
+    --code-inline-fg: #a8c7ea;
+    --link: #4c8dff;
+    --quote-bar: #33404d;
+    --quote-fg: #9aa4ae;
+    --sidebar-bg: #070a0e;
+    --sidebar-active: #16324f;
     --mark: #4d4318;
+    --table-stripe: rgba(255, 255, 255, .028);
     --shadow: 0 1px 3px rgba(1, 4, 9, .5);
 }
 
@@ -285,7 +296,7 @@ img.md-missing, .md-content img.md-missing {
 .md-content hr {
     height: 1px;
     border: 0;
-    background: var(--border);
+    background: var(--border-soft);
     margin: 2rem 0;
 }
 
@@ -321,7 +332,8 @@ img.md-missing, .md-content img.md-missing {
 }
 
 .md-content code {
-    background: var(--code-bg);
+    background: var(--code-inline-bg);
+    color: var(--code-inline-fg);
     padding: .15rem .35rem;
     border-radius: .25rem;
 }
@@ -378,7 +390,7 @@ img.md-missing, .md-content img.md-missing {
 }
 
 .md-content tr:nth-child(even) td {
-    background: rgba(129, 139, 152, .09);
+    background: var(--table-stripe);
 }
 
 /* ---------- задачи ---------- */

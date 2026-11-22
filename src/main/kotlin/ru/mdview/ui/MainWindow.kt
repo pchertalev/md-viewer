@@ -61,6 +61,11 @@ class MainWindow(
         defaultCloseOperation = DO_NOTHING_ON_CLOSE
         contentPane.layout = BorderLayout()
         contentPane.add(tabStrip, BorderLayout.CENTER)
+        // вкладка снова на виду: пока она была скрыта, её браузер мог получить другой размер
+        tabStrip.addChangeListener {
+            val tab = currentTab()
+            if (tab != null && workspaceLazy.isInitialized()) workspaceLazy.value.syncSize(tab.browser)
+        }
         jMenuBar = buildMenu()
         allowDropOn(tabStrip)
 
@@ -211,6 +216,7 @@ class MainWindow(
             JMenu("Вид").apply {
                 add(item("Содержание  T") { invokePage("toc") })
                 add(item("Тема  D") { invokePage("theme") })
+                add(item("Ширина текста  Ctrl+Shift+W", "control shift W") { cycleWidth() })
                 addSeparator()
                 add(item("Крупнее  +") { invokePage("font-plus") })
                 add(item("Мельче  −") { invokePage("font-minus") })
@@ -302,6 +308,19 @@ class MainWindow(
     private fun updateSettings(change: (ViewOptions) -> ViewOptions) {
         view = change(view)
         saveSettings()
+    }
+
+    /**
+     * Ширина текста: на всё окно, узкая колонка, средняя.
+     *
+     * Значение попадает в страницу при генерации, поэтому вкладки перечитываем.
+     */
+    private fun cycleWidth() {
+        val presets = ViewOptions.WIDTH_PRESETS
+        val next = presets[(presets.indexOf(view.maxWidthCh) + 1) % presets.size]
+
+        updateSettings { it.copy(maxWidthCh = next) }
+        tabs.forEach { refresh(it) }
     }
 
     private fun rememberRecent(path: Path) {

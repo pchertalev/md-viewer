@@ -40,6 +40,11 @@ object CefEngine {
             // а с ней JCEF не находит jcef_helper.exe, когда приложение собрано jpackage
             no_sandbox = true
             cache_path = cachePath.toString()
+
+            // pak-файлы Chromium (resources.pak, locales/*.pak) в JBR лежат в lib, а не рядом
+            // с jcef.dll; без этого пути движок стартует с «Could not load resources.pak»
+            resourcesDir()?.let { resources_dir_path = it }
+            localesDir()?.let { locales_dir_path = it }
         }
 
         return CefApp.getInstance(arrayOf(), settings).also { app = it }
@@ -65,6 +70,16 @@ object CefEngine {
 
         return candidate.takeIf { Files.isExecutable(it) }
     }
+
+    private fun resourcesDir(): String? =
+        Path.of(System.getProperty("java.home"), "lib")
+            .takeIf { Files.exists(it.resolve("resources.pak")) }
+            ?.toString()
+
+    private fun localesDir(): String? =
+        Path.of(System.getProperty("java.home"), "lib", "locales")
+            .takeIf { Files.isDirectory(it) }
+            ?.toString()
 
     class BrowserStartupException(message: String) : RuntimeException("Не удалось запустить браузерный движок: $message")
 }

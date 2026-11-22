@@ -26,13 +26,17 @@ class PageComposer {
             .replace(TOKEN_TITLE, escapeHtml(document.title))
             .replace(TOKEN_THEME, options.theme.name.lowercase())
             .replace(TOKEN_FONT_SCALE, options.fontScale.toString())
-            .replace(TOKEN_MAX_WIDTH, "${options.maxWidthCh}ch")
+            .replace(TOKEN_MAX_WIDTH, widthToken(options.maxWidthCh))
             .replace(TOKEN_LAYOUT_CLASS, if (options.showToc) "" else "md-no-toc")
             .replace(TOKEN_TOC, tocHtml(rendered.toc))
             .replace(TOKEN_BODY, rendered.bodyHtml)
             .replace(TOKEN_PATH, escapeHtml(document.path.toString()))
             .replace(TOKEN_STATS, statsText(rendered))
             .replace(TOKEN_GENERATED, LocalDateTime.now().format(TIMESTAMP))
+
+    /** Без ограничения в css — none, иначе ширина колонки в знаках «ш» (ch). */
+    private fun widthToken(maxWidthCh: Int): String =
+        if (maxWidthCh == ViewOptions.FULL_WIDTH) "none" else "${maxWidthCh}ch"
 
     /**
      * Оглавление из плоского списка заголовков. Уровень может прыгать (h2 → h5),

@@ -14,6 +14,8 @@ import org.cef.handler.CefMessageRouterHandlerAdapter
 import org.cef.handler.CefRequestHandlerAdapter
 import org.cef.network.CefRequest
 import ru.mdview.core.Theme
+import java.awt.event.ComponentAdapter
+import java.awt.event.ComponentEvent
 import java.net.URI
 import java.nio.file.Path
 import java.util.logging.Logger
@@ -41,11 +43,11 @@ class BrowserWorkspace(
         client.addMessageRouter(router)
         client.addRequestHandler(NavigationGuard())
         client.addLifeSpanHandler(PopupGuard())
-        client.addLoadHandler(LoadLogger())
+        client.addLoadHandler(PageLoadHandler())
     }
 
     fun createBrowser(startUrl: String): CefBrowser =
-        client.createBrowser(startUrl, CefRendering.DEFAULT, false)
+        client.createBrowser(startUrl, CefRendering.DEFAULT, false).also { watchSize(it) }
 
     fun dispose() {
         runCatching { router.dispose() }
@@ -138,7 +140,17 @@ class BrowserWorkspace(
         }
     }
 
-    private inner class LoadLogger : CefLoadHandlerAdapter() {
+    private inner class PageLoadHandler : CefLoadHandlerAdapter() {
+
+        override fun onLoadStart(
+            browser: CefBrowser,
+            frame: CefFrame,
+            transitionType: CefRequest.TransitionType,
+        ) {
+            // загрузка началась — значит нативная часть движка уже есть и размер можно передать
+            if (frame.isMain) syncSize(browser)
+        }
+
         override fun onLoadError(
             browser: CefBrowser,
             frame: CefFrame,
@@ -148,6 +160,31 @@ class BrowserWorkspace(
         ) {
             log.warning("Страница не загрузилась ($errorCode $errorText): $failedUrl")
         }
+    }
+
+    /**
+     * Chromium знает о размере окна только из нашего вызова wasResized.
+     *
+     * Браузер создаётся раньше, чем нативная часть движка поднялась, и сообщения о размере,
+     * которые шлёт Swing, в этот момент теряются — в логе JCEF это строки «can't invoke
+     * native method 'wasResized' before native context initialized». Если после подъёма
+     * движка размер не прислать, страница остаётся разложенной под тот размер, который был
+     * у компонента в момент создания: блоки наезжают друг на друга, широкие таблицы выходят
+     * за окно.
+     */
+    fun syncSize(browser: CefBrowser) {
+        val component = browser.getUIComponent()
+
+        if (component.width <= 0 || component.height <= 0) return
+
+        browser.wasResized(component.width, component.height)
+    }
+
+    private fun watchSize(browser: CefBrowser) {
+        browser.getUIComponent().addComponentListener(object : ComponentAdapter() {
+            override fun componentResized(e: ComponentEvent) = syncSize(browser)
+            override fun componentShown(e: ComponentEvent) = syncSize(browser)
+        })
     }
 
     private fun isDocumentUrl(url: String): Boolean =

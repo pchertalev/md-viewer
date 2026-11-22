@@ -104,6 +104,7 @@
     /* активный пункт содержания: идём по заголовкам сверху, последний пройденный и есть текущий */
     var tocLinks = Array.prototype.slice.call(document.querySelectorAll('.md-toc-item a'));
     var headingsByAnchor = {};
+    var ACTIVE_TOC_OFFSET = 96;
 
     tocLinks.forEach(function (link) {
         var anchor = link.getAttribute('href').slice(1);
@@ -114,20 +115,22 @@
     });
 
     function updateActiveToc() {
-        var active = null;
+        var activeAnchor = null;
+        var activeTop = Number.NEGATIVE_INFINITY;
 
         Object.keys(headingsByAnchor).forEach(function (anchor) {
-            var heading = headingsByAnchor[anchor];
-            if (heading.getBoundingClientRect().top <= 96) {
-                if (!active || heading.getBoundingClientRect().top > active.getBoundingClientRect().top) {
-                    active = anchor;
-                }
+            var top = headingsByAnchor[anchor].getBoundingClientRect().top;
+            if (top <= ACTIVE_TOC_OFFSET && top > activeTop) {
+                activeTop = top;
+                activeAnchor = anchor;
             }
         });
 
-        tocLinks.forEach(function (link) {
+        tocLinks.forEach(function (link, index) {
             var item = link.parentElement;
-            item.classList.toggle('is-active', active !== null && link.getAttribute('href') === '#' + active);
+            // пока ни один заголовок не пройден, активным считаем самый верхний
+            var isActive = activeAnchor === null ? index === 0 : link.getAttribute('href') === '#' + activeAnchor;
+            item.classList.toggle('is-active', isActive);
         });
     }
 

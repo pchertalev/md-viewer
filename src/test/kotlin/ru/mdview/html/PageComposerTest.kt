@@ -60,6 +60,13 @@ class PageComposerTest {
     }
 
     @Test
+    fun `ширина на всё окно — в странице без ограничения колонки`() {
+        val page = composer.compose(document("Т"), rendered, ViewOptions(maxWidthCh = ViewOptions.FULL_WIDTH))
+
+        assertTrue(page.contains("--max-width:none"))
+    }
+
+    @Test
     fun `оглавление строит вложенный список по уровням`() {
         val page = composer.compose(document("Т"), rendered, ViewOptions())
 

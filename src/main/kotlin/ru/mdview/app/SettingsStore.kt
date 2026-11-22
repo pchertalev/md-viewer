@@ -25,7 +25,7 @@ class SettingsStore(
         val view = ViewOptions(
             theme = Theme.fromId(properties.getProperty(KEY_THEME)),
             fontScale = properties.getProperty(KEY_FONT_SCALE)?.toDoubleOrNull() ?: 1.0,
-            maxWidthCh = properties.getProperty(KEY_MAX_WIDTH)?.toIntOrNull() ?: 84,
+            maxWidthCh = properties.getProperty(KEY_MAX_WIDTH)?.toIntOrNull() ?: ViewOptions.FULL_WIDTH,
             showToc = properties.getProperty(KEY_TOC, "true").toBoolean(),
         )
 
