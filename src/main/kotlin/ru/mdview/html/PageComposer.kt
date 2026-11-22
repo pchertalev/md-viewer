@@ -24,6 +24,7 @@ class PageComposer {
     ): String =
         Resources.read(PageAssets.resourcePath(PAGE_TEMPLATE))
             .replace(TOKEN_TITLE, escapeHtml(document.title))
+            .replace(TOKEN_TITLE_BLOCK, titleBlock(document, rendered))
             .replace(TOKEN_THEME, options.theme.name.lowercase())
             .replace(TOKEN_FONT_SCALE, options.fontScale.toString())
             .replace(TOKEN_MAX_WIDTH, widthToken(options.maxWidthCh))
@@ -37,6 +38,23 @@ class PageComposer {
     /** Без ограничения в css — none, иначе ширина колонки в знаках «ш» (ch). */
     private fun widthToken(maxWidthCh: Int): String =
         if (maxWidthCh == ViewOptions.FULL_WIDTH) "none" else "${maxWidthCh}ch"
+
+    /**
+     * Заголовок в шапке нужен, только если в самом файле его нет: файл почти всегда
+     * начинается с `#` с тем же текстом, и два одинаковых заголовка подряд — просто шум.
+     * Путь и счётчики в шапке остаются в любом случае.
+     */
+    private fun titleBlock(document: MarkdownDocument, rendered: RenderedDocument): String {
+        val first = rendered.toc.firstOrNull()
+
+        if (first != null && first.level == 1 && sameText(first.text, document.title)) return ""
+
+        return """<h1 class="md-doc-title">${escapeHtml(document.title)}</h1>"""
+    }
+
+    private fun sameText(first: String, second: String): Boolean =
+        first.trim().replace(WHITESPACE, " ")
+            .equals(second.trim().replace(WHITESPACE, " "), ignoreCase = true)
 
     /**
      * Оглавление из плоского списка заголовков. Уровень может прыгать (h2 → h5),
@@ -96,6 +114,7 @@ class PageComposer {
         const val PAGE_TEMPLATE = "page.html"
 
         const val TOKEN_TITLE = "@@TITLE@@"
+        const val TOKEN_TITLE_BLOCK = "@@TITLE_BLOCK@@"
         const val TOKEN_THEME = "@@THEME@@"
         const val TOKEN_FONT_SCALE = "@@FONT_SCALE@@"
         const val TOKEN_MAX_WIDTH = "@@MAX_WIDTH@@"
@@ -107,5 +126,6 @@ class PageComposer {
         const val TOKEN_GENERATED = "@@GENERATED@@"
 
         val TIMESTAMP = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+        val WHITESPACE = Regex("\\s+")
     }
 }

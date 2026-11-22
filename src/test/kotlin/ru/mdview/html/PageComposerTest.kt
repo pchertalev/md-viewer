@@ -73,4 +73,22 @@ class PageComposerTest {
         assertTrue(page.contains("""<a href="#первый">Первый</a>"""))
         assertTrue(page.contains("md-toc-sub"), "вложенный уровень должен появиться")
     }
+
+    @Test
+    fun `заголовок в шапке не дублирует первый заголовок файла`() {
+        val withH1 = rendered.copy(toc = listOf(TocEntry(1, "Первый раздел", "первый-раздел")))
+
+        val page = composer.compose(document("Первый раздел"), withH1, ViewOptions())
+
+        assertFalse(page.contains("md-doc-title"), "второй такой же заголовок не рисуем")
+        assertTrue(page.contains("<title>Первый раздел</title>"), "в заголовке вкладки он остаётся")
+        assertTrue(page.contains("md-doc-path"), "путь и счётчики из шапки не пропадают")
+    }
+
+    @Test
+    fun `заголовок в шапке остаётся, если в файле своего заголовка нет`() {
+        val page = composer.compose(document("файл"), rendered, ViewOptions())
+
+        assertTrue(page.contains("""<h1 class="md-doc-title">файл</h1>"""))
+    }
 }
