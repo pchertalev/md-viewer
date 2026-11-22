@@ -44,11 +44,7 @@ class FileAssociation(
             if (result.ok) steps += description else failures += "$description: ${result.output.trim()}"
         }
 
-        val quoted = "\"${exe}\""
-
-        step("класс приложения $progId", Registry.add(progRoot, "Markdown Viewer"))
-        step("иконка", Registry.add("$progRoot\\DefaultIcon", "${exe},0"))
-        step("команда открытия", Registry.add("$progRoot\\shell\\open\\command", "$quoted \"%1\""))
+        step("класс приложения $progId", Registry.importText(progIdRegistry()))
         step("подпись в меню «Открыть с помощью»", Registry.add(openWithKey, data = "", value = progId, type = "REG_NONE"))
         step("путь к приложению (AppPaths)", Registry.add(appPathsKey, exe.toString()))
         step("расширение .$extension → $progId", Registry.add(classKey, progId))
@@ -114,6 +110,32 @@ class FileAssociation(
     }
 
     private val progRoot get() = """HKCU\Software\Classes\$progId"""
+
+    /** Тот же корень, что и progRoot, но с полным именем улья — его требует формат .reg. */
+    private val progRootHive get() = """HKEY_CURRENT_USER\Software\Classes\$progId"""
+
+    /**
+     * Класс приложения: подпись, иконка и команда открытия — одним файлом .reg.
+     *
+     * Через reg.exe аргументом эти кавычки не передать: разбор командной строки Windows
+     * их съедает, и путь с пробелом в команде открытия потом расваливается на части.
+     */
+    private fun progIdRegistry(): String = buildString {
+        appendLine("Windows Registry Editor Version 5.00")
+        appendLine()
+        appendLine("[$progRootHive]")
+        appendLine("@=${regValue("Markdown Viewer")}")
+        appendLine()
+        appendLine("""[$progRootHive\DefaultIcon]""")
+        appendLine("@=${regValue("$exe,0")}")
+        appendLine()
+        appendLine("""[$progRootHive\shell\open\command]""")
+        appendLine("@=${regValue(""""$exe" "%1"""")}")
+    }
+
+    /** Значение по правилам .reg: кавычки и обратные слеши внутри удваиваются/экранируются. */
+    private fun regValue(value: String): String =
+        "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
     private val classKey get() = """HKCU\Software\Classes\.$extension"""
     private val appPathsKey get() = """HKCU\Software\Classes\AppPaths\${exe.fileName}"""
     private val openWithKey get() = """HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.$extension\OpenWithProgids"""
